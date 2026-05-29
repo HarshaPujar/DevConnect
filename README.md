@@ -42,6 +42,12 @@ python manage.py runserver
 * Dark/Light Theme
 * Online Deployment
 
+## Screenshots
+
+### Dashboard
+
+![Dashboard](dashboard.png)
+
 ## Author
 
 Harsha Pujar
