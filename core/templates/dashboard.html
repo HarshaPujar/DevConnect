@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+nav{
+    background:rgba(17,24,39,0.8);
+    backdrop-filter:blur(10px);
+    padding:20px 50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#38bdf8;
+}
+
+ul{
+    display:flex;
+    gap:25px;
+    list-style:none;
+    align-items:center;
+}
+
+a{
+    text-decoration:none;
+    color:white;
+}
+
+.container{
+    max-width:800px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:25px;
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+
+textarea,
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-top:10px;
+    background:#0f172a;
+    color:white;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.profile-img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid #38bdf8;
+    margin-bottom:20px;
+}
+
+.comment-box{
+    background:#0f172a;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.post-card{
+    background:#0f172a;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+}
+@media (max-width: 768px){
+
+    nav{
+        padding:15px;
+        flex-direction:column;
+        gap:15px;
+    }
+
+    ul{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:15px;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    .profile-img{
+        width:90px;
+        height:90px;
+    }
+
+    button{
+        width:100%;
+        margin-top:10px;
+    }
+
+}
+</style>
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            DevConnect
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                Welcome {{ request.user.username }}
+            </li>
+
+            <li>
+                <a href="/logout/">
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <div class="container">
+
+        <div class="card">
+
+            <img
+                src="{{ request.user.profile.image.url }}"
+                class="profile-img"
+            >
+
+            <form method="POST" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <input type="file" name="image">
+
+                <button type="submit">
+                    Upload
+                </button>
+
+            </form>
+
+            <h1 style="margin-top:20px;">
+                Hey harsha 🚀
+            </h1>
+
+            <form method="POST">
+
+    {% csrf_token %}
+
+    <textarea
+        name="bio"
+        placeholder="Write your bio..."
+    >{{ request.user.profile.bio }}</textarea>
+
+    <button type="submit">
+        Save Bio
+    </button>
+
+</form>
+
+            <p>
+                Your DevConnect profile is active.
+            </p>
+
+            {% for post in posts %}
+
+            <div class="post-card">
+
+                <h3>
+
+                    <a href="/profile/{{ post.user.username }}/">
+
+                        {{ post.user.username }}
+
+                    </a>
+
+                </h3>
+
+                <p style="margin-top:10px;">
+                    {{ post.content }}
+                </p>
+
+                <a href="/like/{{ post.id }}/">
+
+                    <button
+                        style="
+                            background:#38bdf8;
+                            color:white;
+                        "
+                    >
+                        ❤️ Like ({{ post.likes.count }})
+                    </button>
+
+                </a>
+
+                <a href="/edit/{{ post.id }}/">
+
+                    <button
+                        style="
+                            background:orange;
+                            color:white;
+                        "
+                    >
+                        Edit
+                    </button>
+
+                </a>
+
+                <a href="/delete/{{ post.id }}/">
+
+                    <button
+                        style="
+                            background:red;
+                            color:white;
+                        "
+                    >
+                        Delete
+                    </button>
+
+                </a>
+
+                <form
+                    action="/comment/{{ post.id }}/"
+                    method="POST"
+                >
+
+                    {% csrf_token %}
+
+                    <input
+                        type="text"
+                        name="text"
+                        placeholder="Write comment..."
+                    >
+
+                    <button
+                        type="submit"
+                        style="
+                            background:green;
+                            color:white;
+                        "
+                    >
+                        Comment
+                    </button>
+
+                </form>
+
+                {% for comment in post.comment_set.all %}
+
+                <div class="comment-box">
+
+                    <b>
+                        {{ comment.user.username }}
+                    </b>
+
+                    <p>
+                        {{ comment.text }}
+                    </p>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endfor %}
+
+            <br>
+
+            <a href="/post/">
+
+                <button>
+                    Create Post
+                </button>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
